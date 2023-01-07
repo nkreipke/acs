@@ -34,6 +34,7 @@ impl AssistantWindow {
             .window("Assistant", width * size_multiplicand, height * size_multiplicand)
             .shaped()
             .position_centered()
+            .allow_highdpi()
             .build()?;
 
         unsafe { sdl2::sys::SDL_SetWindowHitTest(wdw.raw(), Some(sdl_window_hit_test_move), std::ptr::null::<sdl2::libc::c_void>() as *mut _); }
