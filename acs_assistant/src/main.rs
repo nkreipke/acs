@@ -38,9 +38,7 @@ fn main() -> Result<()> {
 
     // Parse the ACS file
     let acs = AcsFile::open_path(acs_path)?;
-    let imgidx = acs.animations().next().ok_or(anyhow!("no animation"))??.frames()?.next().ok_or(anyhow!("no frame"))?.images()?.next().ok_or(anyhow!("no image"))?.image_index();
-    let img = acs.image(imgidx)?;
-    let (width, height) = img.size();
+    let (width, height) = acs.char_size();
 
     let mut window = AssistantWindow::new(width as u32, height as u32)?;
 
