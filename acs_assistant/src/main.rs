@@ -1,3 +1,5 @@
+#![windows_subsystem="windows"] // hide the console window under Windows
+
 mod sdl_anyhow_interop;
 mod window;
 
