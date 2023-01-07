@@ -1,0 +1,6 @@
+[workspace]
+members = [
+	"acs",
+	"acs_data_extractor",
+	"acs_assistant"
+]
