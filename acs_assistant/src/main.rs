@@ -9,7 +9,6 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use anyhow::{anyhow, Context, Result};
-use sdl2::event::Event;
 use acs::AcsFile;
 use crate::window::AssistantWindow;
 
