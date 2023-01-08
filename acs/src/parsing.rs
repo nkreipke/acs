@@ -31,15 +31,16 @@ pub struct AcsCharacterInfo {
     pub flags: AcsCharacterInfoFlags,
     pub animation_set_major_version: u16,
     pub animation_set_minor_version: u16,
-    #[br(if(flags.contains(AcsCharacterInfoFlags::VOICE_OUTPUT_ENABLED)))]
+    #[br(if(!flags.contains(AcsCharacterInfoFlags::VOICE_OUTPUT_DISABLED)))]
     pub voice_info: Option<AcsVoiceInfo>,
     #[br(if(!flags.contains(AcsCharacterInfoFlags::WORD_BALLOON_DISABLED)))]
     pub balloon_info: Option<AcsBalloonInfo>,
     pub palette_colors: List32<PaletteColor>,
-    pub tray_icon_flag: u8,
+    // Not used in this crate:
+    /*pub tray_icon_flag: u8,
     #[br(if(tray_icon_flag == 0x1))]
     pub tray_icon: Option<TrayIcon>,
-    pub states: List16<StateInfo>
+    pub states: List16<StateInfo>*/
 }
 
 #[derive(BinRead, Debug)]
@@ -249,7 +250,8 @@ pub struct AcsGuid(pub u32, pub u16, pub u16, pub u64);
 bitflags::bitflags! {
     #[repr(transparent)]
     pub struct AcsCharacterInfoFlags: u32 {
-        const VOICE_OUTPUT_ENABLED = 1 << 4;
+        const VOICE_OUTPUT_DISABLED = 1 << 28;
+        const VOICE_OUTPUT_ENABLED = 1 << 29;
         const WORD_BALLOON_ENABLED = 1 << 8;
         const WORD_BALLOON_DISABLED = 1 << 9;
         const SIZE_TO_TEXT_ENABLED = 1 << 16;
