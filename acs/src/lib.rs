@@ -193,7 +193,7 @@ impl<'a, D: AsRef<[u8]>> AcsImage<'a, D> {
         assert!(y < height);
 
         let character = &self.file.character;
-        let color_table_index = self.data()[((width - y - 1) * width + x) as usize] as usize;
+        let color_table_index = self.data()[(x + (height - y - 1) * width) as usize] as usize;
 
         if color_table_index == character.transparent_color_index as usize {
             AcsImagePixel {
