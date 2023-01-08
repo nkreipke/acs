@@ -58,23 +58,24 @@ fn main() -> Result<()> {
         let current_animation = animations.get(animation_queue.pop_front().as_deref().unwrap_or(ANIM_IDLE)).ok_or(anyhow!("missing animation"))?;
 
         for frame in current_animation.frames()? {
-            let frame_image = frame.images()?.next().ok_or(anyhow!("frame contains no images"))?;
-            let image_index = frame_image.image_index();
+            if let Some(frame_image) = frame.images()?.next() {
+                let image_index = frame_image.image_index();
 
-            // Lazy load (decompress) our image
-            let image = match image_cache.entry(image_index) {
-                Entry::Occupied(entry) => entry.into_mut(),
-                Entry::Vacant(entry) => {
-                    let image = acs.image(image_index)?;
+                // Lazy load (decompress) our image
+                let image = match image_cache.entry(image_index) {
+                    Entry::Occupied(entry) => entry.into_mut(),
+                    Entry::Vacant(entry) => {
+                        let image = acs.image(image_index)?;
 
-                    let mut data = vec![];
-                    image.read_rgba(&mut data);
+                        let mut data = vec![];
+                        image.read_rgba(&mut data);
 
-                    entry.insert(data.into_boxed_slice())
-                }
-            };
+                        entry.insert(data.into_boxed_slice())
+                    }
+                };
 
-            window.draw(image)?;
+                window.draw(image)?;
+            }
 
             frame_time += frame.duration();
 
