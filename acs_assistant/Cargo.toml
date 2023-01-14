@@ -6,6 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sdl2 = { git = "https://github.com/nkreipke/rust-sdl2.git", branch = "window_shape", features = ["unsafe_textures"] }
+minifb = "0.23"
 acs = { path = "../acs" }
 anyhow = "1.0.68"

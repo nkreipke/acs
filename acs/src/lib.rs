@@ -53,12 +53,7 @@ pub struct AcsImage<'a, D: AsRef<[u8]>> {
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
-pub struct AcsImagePixel {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
-    pub a: u8
-}
+pub struct AcsImagePixel(u32); // represented as argb
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct AcsImageIndex(u32);
@@ -196,34 +191,20 @@ impl<'a, D: AsRef<[u8]>> AcsImage<'a, D> {
         let color_table_index = self.data()[(x + (height - y - 1) * width) as usize] as usize;
 
         if color_table_index == character.transparent_color_index as usize {
-            AcsImagePixel {
-                r: 0,
-                g: 0,
-                b: 0,
-                a: 0
-            }
+            AcsImagePixel::zero()
         } else {
             let RgbQuad(b, g, r, _) = character.palette_colors.items[color_table_index].color;
 
-            AcsImagePixel {
-                r,
-                g,
-                b,
-                a: 0xFF
-            }
+            AcsImagePixel::new(0xFF, r, g, b)
         }
     }
 
-    pub fn read_rgba(&self, target: &mut Vec<u8>) {
+    pub fn read_argb(&self, target: &mut Vec<u32>) {
         let (width, height) = self.size();
 
         for y in 0..height {
             for x in 0..width {
-                let AcsImagePixel { r, g, b, a } = self.pixel(x, y);
-                target.push(r);
-                target.push(g);
-                target.push(b);
-                target.push(a);
+                target.push(self.pixel(x, y).as_argb());
             }
         }
     }
@@ -277,5 +258,35 @@ impl<'b> Debug for AcsFrameImage<'b> {
 impl<'a, D: AsRef<[u8]>> Debug for AcsImage<'a, D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "image (width={},height={}), {} bytes", self.info.width, self.info.height, self.data().len())
+    }
+}
+
+impl AcsImagePixel {
+    pub fn new(a: u8, r: u8, g: u8, b: u8) -> AcsImagePixel {
+        AcsImagePixel((a as u32) << 24 | (r as u32) << 16 | (g as u32) << 8 | b as u32)
+    }
+
+    pub fn zero() -> AcsImagePixel {
+        AcsImagePixel(0)
+    }
+
+    pub fn a(self) -> u8 {
+        (self.0 >> 24) as u8
+    }
+
+    pub fn r(self) -> u8 {
+        (self.0 >> 16) as u8
+    }
+
+    pub fn g(self) -> u8 {
+        (self.0 >> 8) as u8
+    }
+
+    pub fn b(self) -> u8 {
+        self.0 as u8
+    }
+
+    pub fn as_argb(self) -> u32 {
+        self.0
     }
 }

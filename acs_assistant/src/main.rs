@@ -12,8 +12,8 @@ use anyhow::{anyhow, Context, Result};
 use acs::AcsFile;
 use crate::window::AssistantWindow;
 
-const ANIM_PLAYLIST: &[&str] = &["SHOW", "GREET"]; // default order of animations
-const ANIM_IDLE: &str = "IDLE"; // what to use if our queue is empty
+const ANIM_PLAYLIST: &[&str] = &["SHOW"]; // default order of animations
+const ANIM_IDLE: &str = "HIDE"; // what to use if our queue is empty
 
 const POLL_INTERVAL: Duration = Duration::from_millis(300);
 
@@ -45,14 +45,16 @@ fn main() -> Result<()> {
     let mut image_cache = HashMap::new();
     let mut animations = HashMap::new();
 
+    let mut animation_queue = ANIM_PLAYLIST.iter().map(|s| s.to_string()).collect::<VecDeque<_>>();
+    let mut frame_time = Instant::now();
+
     // Read all animations
     for animation in acs.animations() {
         let animation = animation?;
+        animation_queue.push_back(animation.name().to_string());
+
         animations.insert(animation.name().to_string(), animation);
     }
-
-    let mut animation_queue = ANIM_PLAYLIST.iter().map(|s| s.to_string()).collect::<VecDeque<_>>();
-    let mut frame_time = Instant::now();
 
     loop {
         let current_animation = animations.get(animation_queue.pop_front().as_deref().unwrap_or(ANIM_IDLE)).ok_or(anyhow!("missing animation"))?;
@@ -68,7 +70,7 @@ fn main() -> Result<()> {
                         let image = acs.image(image_index)?;
 
                         let mut data = vec![];
-                        image.read_rgba(&mut data);
+                        image.read_argb(&mut data);
 
                         entry.insert(data.into_boxed_slice())
                     }
